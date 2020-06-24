@@ -1,0 +1,7 @@
+## data:
+data_source: 
+  image_path: 'path_to_support_image'
+  annotation_path: 'path_to_support_annotation'
+model_path: 'path_to_model'
+labels: ['support_label']
+output_path: './output'

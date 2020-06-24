@@ -1,7 +1,14 @@
-## data:
+# data:
 data_source: 
-  image_path: 'path_to_support_image'
-  annotation_path: 'path_to_support_annotation'
-model_path: 'path_to_model'
+  image_path: 'path_to_support_image.tif'
+  annotation_path: 'path_to_support_annotation.xml'
 labels: ['support_label']
+
+# model
+model_path: 'path_to_model.h5'
+patch_shape: [64, 64, 3]
+resolution: [0.5]
+threshold_sensitivity: 1.3
+
+# output
 output_path: './output'

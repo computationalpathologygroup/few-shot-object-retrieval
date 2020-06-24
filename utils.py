@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
@@ -8,7 +9,6 @@ from keras.model import Sequential
 
 
 def is_valid_file(parser, arg):
-    return arg
     if not os.path.exists(arg):
         parser.error("The file %s does not exist!" % arg)
     else:

@@ -29,7 +29,7 @@ class Support:
         embedding_size = int(model.output.shape[-1])
         embeddings = []
         anchors = set()
-        fig, axes = plt.subplots(1,5,figsize=(10,10))
+        # fig, axes = plt.subplots(1,5,figsize=(10,10))
         axesi =0
         for image_annotation in self._image_annotations:
             support_image = ImageReader(image_annotation.image_path)
@@ -40,10 +40,10 @@ class Support:
                 x,y = annotation.center
                 anchors.add((width//64, height//64))
                 support_patch=support_image.read_center(x,y,width, height, 0.5)
-                axes[axesi].imshow(support_patch)
+                # axes[axesi].imshow(support_patch)
                 blocks = skimage.util.view_as_blocks(support_patch, (64,64,3)).squeeze().reshape(-1,64,64,3)
                 embeddings.append(model.predict_on_batch(blocks/255.0).squeeze().reshape(-1, embedding_size).mean(axis=(0)))  
-                axes[axesi].axis('off')
+                # axes[axesi].axis('off')
                 axesi +=1
         
         # apply data-augmentations

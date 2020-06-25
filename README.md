@@ -9,7 +9,7 @@
 
 
 ##### Create enconding
-The following line will create an .npy encoded representation for the gives wsi with the given model. An optional tissue mask van be given to speed up the encoding.
+The following line will create an .npy encoded representation for the gives wsi with the given model. An optional tissue mask can be specified to speed up the encoding.
  - python encode.py --model_path='path_to_encoder_model' --image_path='path_to_wsi' --mask_path='path_to_mask' --output_path='path_to_output'
 
 

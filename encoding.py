@@ -1,9 +1,11 @@
 import os
 import numpy as np
+
+from tqdm import tqdm
 from tensorflow.keras.models import load_model
 
-from xmlpathology.xmlbatchgenerator.auxiliary import WSIPatchGenerator
-from xmlpathology.xio.imagereader import ImageReader, get_image_shape
+from xmlpathology.xmlbatchgenerator.generators import WSIPatchGenerator
+from xmlpathology.xmlbatchgenerator.data.wholeslideimage import WholeSlideImageASAP, WholeSlideImageOpenSlide
 
 
 
@@ -14,9 +16,9 @@ class WsiEncoding:
                           'vectors': {}}
         
         if image_path:
-            imagereader = ImageReader(image_path)
-            shape = (np.array(imagereader.shapes[0])+1024)//64
-            layout = np.zeros((shape[0], shape[1]))
+            image = WholeSlideImageOpenSlide(image_path)
+            shape = (np.array(image.shapes[0])+1024)//64
+            layout = np.zeros((shape[1], shape[0]))
             self._encoding['layout'] = layout
     
     def load(self, path):
@@ -44,13 +46,13 @@ def create_encoding(model_path,
                      cpus=1):
     # Init model
     model = load_model(model_path, compile=False)
-    image_reader = ImageReader(image_path)
-    shape = image_reader.shapes[image_reader.level(spacing)]
+    image = WholeSlideImageOpenSlide(image_path)
+    shape = image.shapes[image.get_level_from_spacing(spacing)]
     
     bg_mask = None
     bg_encoding = None
     if bg_mask_path:
-        bg_mask = ImageReader(bg_mask_path)
+        bg_mask = WholeSlideImageASAP(bg_mask_path)
     
     wsi_encoding = WsiEncoding(image_path)
     wsi_encoding_output_path = os.path.join(output_path,os.path.basename(image_path).replace('.mrxs', '_4task_encoded.npy'))
@@ -77,7 +79,7 @@ def create_encoding(model_path,
         image_shape = get_image_shape(image_path, spacing)
 
         # loop over annotations
-        for i, annotation in enumerate(image_annotation.annotations):
+        for i, annotation in enumerate(tqdm(image_annotation.annotations)):
             if i%100==0:
                 print('encoding...', i/len(image_annotation.annotations))
             
@@ -86,7 +88,7 @@ def create_encoding(model_path,
             
             mask_patch = None
             if bg_mask:
-                mask_patch = bg_mask.read(2.0, annotation.bounds[1]//4, annotation.bounds[0]//4, tile_shape[0]//4, tile_shape[1]//4)
+                mask_patch = bg_mask.get_patch(annotation.bounds[1]//4, annotation.bounds[0]//4, tile_shape[0]//4, tile_shape[1]//4, 2.0)
             
             if mask_patch is None or np.any(mask_patch):
 

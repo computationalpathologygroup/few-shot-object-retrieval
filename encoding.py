@@ -2,10 +2,10 @@ import os
 import numpy as np
 
 from tqdm import tqdm
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 
-from xmlpathology.xmlbatchgenerator.generators import WSIPatchGenerator
-from xmlpathology.xmlbatchgenerator.data.wholeslideimage import WholeSlideImageASAP, WholeSlideImageOpenSlide
+from xmlpathology.batchgenerator.generators import WSIPatchGenerator
+from xmlpathology.batchgenerator.data.wholeslideimage import WholeSlideImageASAP, WholeSlideImageOpenSlide
 
 
 
@@ -29,7 +29,7 @@ class WsiEncoding:
             raise ValueError(f'{(x,y,width,height,spacing)} encoding already present and overwrite={overwrite}')
             
         self._encoding['vectors'][(x, y, width, height, spacing)] = encoding
-        self._encoding['layout'][y//2//64][x//2//64] = 1
+        self._encoding['layout'][y//64][x//64] = 1
         
     def save(self, output_path):
         np.save(output_path, self._encoding)
@@ -74,21 +74,17 @@ def create_encoding(model_path,
     batchgen.start()
     
     # loop over data
-    for image_annotation in batchgen().datasets['training'].image_annotations:
-        # get image shape
-        image_shape = get_image_shape(image_path, spacing)
+    for image_annotation in batchgen.datasets['training'].image_annotations:
 
         # loop over annotations
         for i, annotation in enumerate(tqdm(image_annotation.annotations)):
-            if i%100==0:
-                print('encoding...', i/len(image_annotation.annotations))
             
             # get batch
             batch = batchgen.batch('training')
             
             mask_patch = None
             if bg_mask:
-                mask_patch = bg_mask.get_patch(annotation.bounds[1]//4, annotation.bounds[0]//4, tile_shape[0]//4, tile_shape[1]//4, 2.0)
+                mask_patch = bg_mask.get_patch(annotation.bounds[0]//4, annotation.bounds[1]//4, tile_shape[0]//4, tile_shape[1]//4, 2.0)
             
             if mask_patch is None or np.any(mask_patch):
 
@@ -103,7 +99,7 @@ def create_encoding(model_path,
                 encodings = encodings.reshape(h, w, -1)
 
                 # set encoding patches
-                ratio =2
+                ratio =1
                 for w_index in range(w):
                     for h_index in range(h):
                         x = annotation.bounds[0] + patch_shape[0] * w_index * ratio

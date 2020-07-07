@@ -12,7 +12,7 @@ cpus = 6
 parser = ArgumentParser(description='HookNet')
 parser.add_argument("-i", '--image_path', dest="image_path", required=True,
                     help="input image path", metavar="FILE_PATH", type=lambda x: is_valid_file(parser, x))
-parser.add_argument("-i", '--output_path', dest="output_path", required=True,
+parser.add_argument("-o", '--output_path', dest="output_path", required=True,
                     help="output image path", metavar="FILE_PATH", type=lambda x: is_valid_file(parser, x))
 parser.add_argument("-m", '--mask_path', dest="mask_path", required=False,
                     help="mask image path", metavar="FILE_PATH", type=lambda x: is_valid_file(parser, x))

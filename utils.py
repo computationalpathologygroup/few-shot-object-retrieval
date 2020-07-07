@@ -5,7 +5,7 @@ from xml.dom import minidom
 
 from skimage.measure import block_reduce
 from keras.layers import InputLayer, Convolution2D
-from keras.model import Sequential
+from keras.models import Sequential
 
 
 def is_valid_file(parser, arg):

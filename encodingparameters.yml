@@ -1,0 +1,5 @@
+image_path: '/home/user/images/T10-03264-I-8-1-gr2.tif'
+mask_path: '/home/user/images/background_masks_lvl1/T10-03264-I-8-1-gr2_tissue.tif'
+model_path: '/home/user/supervsied_enc_2019_4tasks.h5'
+output_path: '/home/user/queries/'
+cpus: 16

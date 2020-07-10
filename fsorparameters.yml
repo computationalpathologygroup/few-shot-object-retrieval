@@ -3,6 +3,7 @@ data_source:
   image_path: 'path_to_support_image.tif'
   annotation_path: 'path_to_support_annotation.xml'
 labels: ['support_label']
+query_path: 
 
 # model
 model_path: 'path_to_model.h5'

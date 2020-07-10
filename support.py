@@ -10,6 +10,11 @@ from xmlpathology.batchgenerator.data.wholeslideannotation import WholeSlideAnno
 
 from utils import to_fully_conv, quantize
 
+from scipy.stats.mstats import gmean
+
+from numpy import dot
+from numpy.linalg import norm
+
 import imgaug as ia
 from imgaug import augmenters as iaa
 def augmentor(images):
@@ -29,7 +34,7 @@ def augmentor(images):
 
 
 class Support:
-    def __init__(self, datasource, model_path, labels, grid_cell_size=64, spacing=0.5):
+    def __init__(self, datasource, model_path, labels, grid_cell_size=64, spacing=0.5, calculate_threshold=np.mean):
         self._image_annotations = []
         for source in datasource:
             self._image_annotations.append(WholeSlideAnnotation(-1, 
@@ -41,6 +46,7 @@ class Support:
         self._model_path = model_path
         self._grid_cell_size = grid_cell_size
         self._spacing = spacing
+        self._calculate_threshold = calculate_threshold
 
     def prototype(self):
         model = load_model(self._model_path)
@@ -65,10 +71,13 @@ class Support:
                 all_blocks = np.concatenate([blocks, blocks_augmented])
                 embeddings.append(model.predict_on_batch(all_blocks/255.0).squeeze().reshape(-1, embedding_size).mean(axis=(0)))  
         
+        proto = np.array(embeddings).mean(axis=0)
         # find threshold
         thresholds = []
-        for findex in range(len(embeddings)):
-            for sindex in range(len(embeddings[findex:])):
-                thresholds.append(np.linalg.norm(embeddings[findex]-embeddings[sindex]))
-                        
-        return np.array(embeddings).mean(axis=0), np.mean(thresholds) , anchors, patches
+        cos_thresholds = []
+        for findex in range(len(embeddings)):   
+                # cos_thresholds = dot(embeddings[findex], embeddings[sindex])/(norm(embeddings[findex])*norm(embeddings[sindex]))
+                thresholds.append(np.linalg.norm(embeddings[findex]-proto))
+        
+        thresholds = [t for t in thresholds if t != 0]
+        return np.array(embeddings).mean(axis=0), self._calculate_threshold(thresholds), anchors, patches, thresholds

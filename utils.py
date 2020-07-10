@@ -95,7 +95,7 @@ def quantize(width, height, quantize_value):
     return width-width%quantize_value, height-height%quantize_value
 
 
-def write_xml(out_path, points=[], labels=[], colors=[], rois=[], roi_labels=[], roi_colors=[]):
+def write_xml(out_path, points=[], labels=[], colors=[], rois=[], roi_labels=[], sim_values=[], roi_colors=[]):
     """
     write the dot(point) annotations in xml format of ASAP
     write the rois as rectangle annotations if provided
@@ -138,7 +138,7 @@ def write_xml(out_path, points=[], labels=[], colors=[], rois=[], roi_labels=[],
     if rois:
         for idx0, rect in enumerate(rois):
             anno = ET.SubElement(annos, "Annotation")
-            anno.set("Name", "Annotation "+str(idx0))
+            anno.set("Name", "Annotation "+str(idx0) + '. sim-value: ' + str(sim_values[idx0]))
             anno.set("Type", "Polygon")
             anno.set("PartOfGroup", roi_labels[idx0])
             anno.set("Color", roi_colors[idx0])
@@ -237,4 +237,4 @@ def non_max_suppression_fast(boxes, overlapThresh):
             np.where(overlap > overlapThresh)[0])))
     # return only the bounding boxes that were picked using the
     # integer data type
-    return boxes[pick].astype("int")
+    return boxes[pick]

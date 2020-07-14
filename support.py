@@ -4,7 +4,7 @@ import skimage
 from keras.models import load_model
 import numpy as np
 
-from xmlpathology.batchgenerator.data.wholeslideimage import WholeSlideImageOpenSlide
+from xmlpathology.batchgenerator.data.wholeslideimage import WholeSlideImageASAP
 from xmlpathology.batchgenerator.data.wholeslideannotation import WholeSlideAnnotation
 
 
@@ -56,7 +56,7 @@ class Support:
         axesi =0
         patches = []
         for image_annotation in self._image_annotations:
-            support_image = WholeSlideImageOpenSlide(image_annotation.image_path)
+            support_image = WholeSlideImageASAP(image_annotation.image_path)
             for annotation in image_annotation.annotations:
                 ratio = support_image.get_downsampling_from_spacing(self._spacing)
                 _, _, width, height = annotation.bounds[0], annotation.bounds[1], annotation.bounds[2]-annotation.bounds[0], annotation.bounds[3]-annotation.bounds[1]
@@ -70,7 +70,9 @@ class Support:
                 blocks_augmented = augmentor(blocks)
                 all_blocks = np.concatenate([blocks, blocks_augmented])
                 embeddings.append(model.predict_on_batch(all_blocks/255.0).squeeze().reshape(-1, embedding_size).mean(axis=(0)))  
-        
+            support_image.close()
+            support_image = None
+            del support_image
         proto = np.array(embeddings).mean(axis=0)
         # find threshold
         thresholds = []

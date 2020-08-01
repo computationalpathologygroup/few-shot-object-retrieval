@@ -42,7 +42,7 @@ def create_encoding(model_path,
                      patch_shape=(64, 64, 3),
                      spacing=0.5,
                      tile_shape=(1024, 1024),
-                     shift=1024,
+                     shift=(1024, 1024),
                      cpus=1):
     # Init model
     model = load_model(model_path, compile=False)

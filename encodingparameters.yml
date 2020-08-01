@@ -1,5 +1,5 @@
-image_path: '/home/user/images/'
-mask_path: '/home/user/images/background_masks_lvl1/'
+image_path: '/home/user/breast/tif_lvl1/'
+mask_path: '/home/user/breast/tif_lvl1/images/'
 model_path: '/home/user/supervsied_enc_2019_4tasks.h5'
-output_path: '/home/user/queries/'
+output_path: '/home/user/breast/queries/'
 cpus: 16

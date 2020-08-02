@@ -25,9 +25,9 @@ def augmentor(images):
                 iaa.Fliplr(0.9),  # horizontally flip 50% of all images
                 iaa.Flipud(0.9),  # vertically flip 20% of all images
                 iaa.ElasticTransformation(alpha=(10, 20), sigma=6),
-                iaa.Multiply((0.7, 1.2), per_channel=0.6),
-                iaa.GaussianBlur((0, 0.75)),
-                iaa.LinearContrast((0.5, 2.5)),             
+                iaa.GammaContrast((0.8, 1.2)),
+                iaa.MultiplyHueAndSaturation(mul_hue=(0.6, 1.4)),
+                iaa.GaussianBlur((0.0, 0.8)),            
                 ],
                 random_order=True
         )
@@ -56,22 +56,22 @@ class Support:
         anchors = set()
         axesi =0
         patches = []
-        for image_annotation in self._image_annotations:
+        for image_annotation in self._image_annotations:    
             support_image = WholeSlideImageASAP(image_annotation.image_path)
-            for annotation in image_annotation.annotations:
-                ratio = support_image.get_downsampling_from_spacing(self._spacing)
-                _, _, width, height = annotation.bounds[0], annotation.bounds[1], annotation.bounds[2]-annotation.bounds[0], annotation.bounds[3]-annotation.bounds[1]
-                width, height = quantize(width//ratio, height//ratio, self._grid_cell_size)                
-                x,y = annotation.center
-                anchors.add((width//64, height//64))
-                support_patch=support_image.get_patch(x,y,width, height, 0.5)
-                patches.append(support_patch)
-                blocks = skimage.util.view_as_blocks(support_patch, (64,64,3)).squeeze().reshape(-1,64,64,3)
-                # apply data-augmentations
-                blocks_augmented1 = augmentor(blocks)
-                blocks_augmented2 = augmentor(blocks)
-                all_blocks = np.concatenate([blocks, blocks_augmented1, blocks_augmented2])
-                embeddings.append(model.predict_on_batch(all_blocks/255.0).squeeze().reshape(-1, embedding_size).mean(axis=(0)))  
+            for annotation in image_annotation.annotations[::-1][:5]:
+                for i in range(2):
+                    ratio = support_image.get_downsampling_from_spacing(self._spacing)
+                    _, _, width, height = annotation.bounds[0], annotation.bounds[1], annotation.bounds[2]-annotation.bounds[0], annotation.bounds[3]-annotation.bounds[1]
+                    width, height = quantize(width//ratio, height//ratio, self._grid_cell_size)                
+                    x,y = annotation.center
+                    anchors.add((width//64, height//64))
+                    support_patch=support_image.get_patch(x,y,width, height, 0.5)
+                    if i>0:
+                        support_patch = augmentor(np.array([support_patch]))[0]
+                    patches.append(support_patch)
+                    blocks = skimage.util.view_as_blocks(support_patch, (64,64,3)).squeeze().reshape(-1,64,64,3)
+                    # apply data-augmentations
+                    embeddings.append(model.predict_on_batch(blocks/255.0).squeeze().reshape(-1, embedding_size).mean(axis=(0)))  
             support_image.close()
             support_image = None
             del support_image

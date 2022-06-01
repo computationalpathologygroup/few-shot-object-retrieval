@@ -1,5 +1,4 @@
 # few-shot-object-retrieval
-### \#ExaMode
 
 
 ##### dependecies
@@ -17,3 +16,8 @@ The following line will create an .npy encoded representation for the gives wsi 
 ##### Detect
 The following line will create an xml file with detections for the encoded wsis. See fsorparameters.yml for more options.
  - python detect.py --query_encoded_path='path_to_encoding.npy' 
+
+
+### Acknowledgements
+
+Created in the [#EXAMODE](https://www.examode.eu/) project
